@@ -2,7 +2,7 @@ type FooterProps = {
   pushToBottom?: boolean;
 };
 
-export default function Footer({ pushToBottom = false }: FooterProps) {
+export default function Footer({ pushToBottom = true }: FooterProps) {
   return (
     <footer
       className={[

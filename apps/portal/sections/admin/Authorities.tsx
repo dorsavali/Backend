@@ -253,16 +253,11 @@ export default function AdminAuthorities() {
   const ecdsaCount = authorities.filter((authority) => authority.keyAvailability?.ecdsa).length;
 
   return (
-    <div className="space-y-5">
+    <div className="flex min-h-[calc(100vh-3rem)] flex-col gap-5">
       <header className="flex flex-col gap-4 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold tracking-tight text-[#071226]">
-            Attestation Authorities
-          </h1>
-          <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
-            UAT
-          </span>
-        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-[#071226]">
+          Attestation Authorities
+        </h1>
         <label className="relative w-full sm:w-80">
           <Search
             size={18}

@@ -385,7 +385,6 @@ export default function AdminOverview() {
       <header className="flex items-center justify-between gap-4 border-b border-slate-200 pb-3">
         <h1 className="shrink-0 text-xl font-bold tracking-tight text-slate-950">Overview</h1>
         <div className="flex min-w-0 items-center gap-3">
-          <span className="rounded-lg bg-blue-700 px-3 py-2 text-xs font-bold text-white">UAT</span>
           <label className="relative block w-40 sm:w-72">
             <Search
               size={18}

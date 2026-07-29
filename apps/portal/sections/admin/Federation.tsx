@@ -94,6 +94,7 @@ export default function AdminFederation() {
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "disabled">("all");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [actionMenu, setActionMenu] = useState<string | null>(null);
+  const [actionMenuPosition, setActionMenuPosition] = useState({ top: 0, left: 0 });
   const [newBackend, setNewBackend] = useState({ url: "", name: "" });
 
   const getAccessToken = () => localStorage.getItem("ua_access");
@@ -319,16 +320,9 @@ export default function AdminFederation() {
   const issueCount = backends.length - activeCount;
 
   return (
-    <div className="space-y-5">
+    <div className="flex min-h-[calc(100vh-3rem)] flex-col gap-5">
       <header className="flex flex-col gap-4 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold tracking-tight text-[#071226]">
-            Federation Management
-          </h1>
-          <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
-            UAT
-          </span>
-        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-[#071226]">Federation Management</h1>
         <label className="relative w-full sm:w-80">
           <Search
             size={18}
@@ -507,34 +501,64 @@ export default function AdminFederation() {
                       )}
                       <button
                         type="button"
-                        onClick={() =>
-                          setActionMenu((current) => (current === backend.id ? null : backend.id))
-                        }
+                        onClick={(event) => {
+                          if (actionMenu === backend.id) {
+                            setActionMenu(null);
+                            return;
+                          }
+                          const rect = event.currentTarget.getBoundingClientRect();
+                          const menuHeight = 88;
+                          setActionMenuPosition({
+                            top:
+                              rect.bottom + menuHeight + 8 <= window.innerHeight
+                                ? rect.bottom + 6
+                                : rect.top - menuHeight - 6,
+                            left: Math.max(12, rect.right - 176),
+                          });
+                          setActionMenu(backend.id);
+                        }}
                         className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
                       >
                         <MoreVertical size={17} />
                       </button>
                     </div>
-                    {actionMenu === backend.id && (
-                      <div className="absolute right-8 top-12 z-20 w-44 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 text-left shadow-xl">
-                        <button
-                          type="button"
-                          onClick={() => toggleBackendStatus(backend)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                        >
-                          {backend.status === "active" ? <X size={16} /> : <Check size={16} />}
-                          {backend.status === "active" ? "Disable" : "Enable"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => deleteBackend(backend)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
-                        >
-                          <Trash2 size={16} />
-                          Delete
-                        </button>
-                      </div>
-                    )}
+                    {actionMenu === backend.id &&
+                      typeof document !== "undefined" &&
+                      createPortal(
+                        <>
+                          <button
+                            type="button"
+                            aria-label="Close actions menu"
+                            onClick={() => setActionMenu(null)}
+                            className="fixed inset-0 z-[9990] cursor-default"
+                          />
+                          <div
+                            className="fixed z-[9991] w-44 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 text-left shadow-xl"
+                            style={{
+                              top: actionMenuPosition.top,
+                              left: actionMenuPosition.left,
+                            }}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => toggleBackendStatus(backend)}
+                              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                            >
+                              {backend.status === "active" ? <X size={16} /> : <Check size={16} />}
+                              {backend.status === "active" ? "Disable" : "Enable"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteBackend(backend)}
+                              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                            >
+                              <Trash2 size={16} />
+                              Delete
+                            </button>
+                          </div>
+                        </>,
+                        document.body,
+                      )}
                   </td>
                 </tr>
               ))}
