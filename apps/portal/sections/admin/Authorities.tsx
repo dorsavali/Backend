@@ -90,6 +90,7 @@ export default function AdminAuthorities() {
   const [search, setSearch] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [actionMenu, setActionMenu] = useState<string | null>(null);
+  const [actionMenuPosition, setActionMenuPosition] = useState({ top: 0, left: 0 });
   const [newAuthority, setNewAuthority] = useState({ name: "", baseUrl: "" });
 
   const getAccessToken = () => localStorage.getItem("ua_access");
@@ -416,29 +417,57 @@ export default function AdminAuthorities() {
                       {!authority.isLocal && (
                         <button
                           type="button"
-                          onClick={() =>
-                            setActionMenu((current) =>
-                              current === authority.id ? null : authority.id,
-                            )
-                          }
+                          onClick={(event) => {
+                            if (actionMenu === authority.id) {
+                              setActionMenu(null);
+                              return;
+                            }
+                            const rect = event.currentTarget.getBoundingClientRect();
+                            const menuHeight = 48;
+                            setActionMenuPosition({
+                              top:
+                                rect.bottom + menuHeight + 8 <= window.innerHeight
+                                  ? rect.bottom + 6
+                                  : rect.top - menuHeight - 6,
+                              left: Math.max(12, rect.right - 160),
+                            });
+                            setActionMenu(authority.id);
+                          }}
                           className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
                         >
                           <MoreVertical size={17} />
                         </button>
                       )}
                     </div>
-                    {actionMenu === authority.id && (
-                      <div className="absolute right-8 top-12 z-20 w-40 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 text-left shadow-xl">
-                        <button
-                          type="button"
-                          onClick={() => deleteAuthority(authority)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
-                        >
-                          <Trash2 size={16} />
-                          Delete
-                        </button>
-                      </div>
-                    )}
+                    {actionMenu === authority.id &&
+                      typeof document !== "undefined" &&
+                      createPortal(
+                        <>
+                          <button
+                            type="button"
+                            aria-label="Close actions menu"
+                            onClick={() => setActionMenu(null)}
+                            className="fixed inset-0 z-[9990] cursor-default"
+                          />
+                          <div
+                            className="fixed z-[9991] w-40 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 text-left shadow-xl"
+                            style={{
+                              top: actionMenuPosition.top,
+                              left: actionMenuPosition.left,
+                            }}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => deleteAuthority(authority)}
+                              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                            >
+                              <Trash2 size={16} />
+                              Delete
+                            </button>
+                          </div>
+                        </>,
+                        document.body,
+                      )}
                   </td>
                 </tr>
               ))}

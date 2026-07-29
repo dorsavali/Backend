@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowLeft,
   ArrowRight,
@@ -104,6 +105,7 @@ export default function AdminUsers() {
   const [drawerMode, setDrawerMode] = useState<DrawerMode>("create");
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [actionMenu, setActionMenu] = useState<string | null>(null);
+  const [actionMenuPosition, setActionMenuPosition] = useState({ top: 0, left: 0 });
   const [showPassword, setShowPassword] = useState(false);
   const [newUser, setNewUser] = useState({
     email: "",
@@ -478,46 +480,76 @@ export default function AdminUsers() {
                   <td className="relative px-5 py-3 text-right">
                     <button
                       type="button"
-                      onClick={() =>
-                        setActionMenu((current) => (current === user.id ? null : user.id))
-                      }
+                      onClick={(event) => {
+                        if (actionMenu === user.id) {
+                          setActionMenu(null);
+                          return;
+                        }
+                        const rect = event.currentTarget.getBoundingClientRect();
+                        const menuHeight = user.role === "admin" ? 48 : 128;
+                        setActionMenuPosition({
+                          top:
+                            rect.bottom + menuHeight + 8 <= window.innerHeight
+                              ? rect.bottom + 6
+                              : rect.top - menuHeight - 6,
+                          left: Math.max(12, rect.right - 176),
+                        });
+                        setActionMenu(user.id);
+                      }}
                       aria-label={`Actions for ${user.email}`}
                       className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-[#071226]"
                     >
                       <MoreVertical size={18} />
                     </button>
-                    {actionMenu === user.id && (
-                      <div className="absolute right-8 top-11 z-20 w-44 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 text-left shadow-xl">
-                        <button
-                          type="button"
-                          onClick={() => openPasswordDrawer(user)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                        >
-                          <KeyRound size={16} />
-                          Reset password
-                        </button>
-                        {user.role !== "admin" && (
-                          <>
+                    {actionMenu === user.id &&
+                      typeof document !== "undefined" &&
+                      createPortal(
+                        <>
+                          <button
+                            type="button"
+                            aria-label="Close actions menu"
+                            onClick={() => setActionMenu(null)}
+                            className="fixed inset-0 z-[9990] cursor-default"
+                          />
+                          <div
+                            className="fixed z-[9991] w-44 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 text-left shadow-xl"
+                            style={{
+                              top: actionMenuPosition.top,
+                              left: actionMenuPosition.left,
+                            }}
+                          >
                             <button
                               type="button"
-                              onClick={() => changeUserStatus(user)}
+                              onClick={() => openPasswordDrawer(user)}
                               className="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
                             >
-                              {user.disabledAt ? <Check size={16} /> : <X size={16} />}
-                              {user.disabledAt ? "Enable user" : "Disable user"}
+                              <KeyRound size={16} />
+                              Reset password
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => deleteUser(user)}
-                              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
-                            >
-                              <X size={16} />
-                              Delete user
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    )}
+                            {user.role !== "admin" && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => changeUserStatus(user)}
+                                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                >
+                                  {user.disabledAt ? <Check size={16} /> : <X size={16} />}
+                                  {user.disabledAt ? "Enable user" : "Disable user"}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => deleteUser(user)}
+                                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                                >
+                                  <X size={16} />
+                                  Delete user
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </>,
+                        document.body,
+                      )}
                   </td>
                 </tr>
               ))}
