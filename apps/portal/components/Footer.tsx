@@ -29,9 +29,7 @@ export default function Footer({ pushToBottom = true }: FooterProps) {
         <a href="https://uattest.net/" className="transition hover:text-slate-900">
           More Info
         </a>
-        <a href="/terms" className="transition hover:text-slate-900">
-          Terms of Service
-        </a>
+       
       </nav>
     </footer>
   );
