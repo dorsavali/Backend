@@ -40,9 +40,33 @@ export default async function adminRoutes(app: FastifyInstance) {
       reply.code(403).send(errorResponse("FORBIDDEN", "Admin role required"));
       return;
     }
+    const prisma = getPrisma();
+    const storedSettings = app.config.backendId
+      ? await prisma.backendSettings.findUnique({
+          where: { backendId: app.config.backendId },
+          select: {
+            signingKid: true,
+            signingAlg: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        })
+      : null;
     reply.send({
       backendId: app.config.backendId,
       publicKey: app.config.signingKey?.publicKey || null,
+      signingKey: {
+        kid: storedSettings?.signingKid || app.config.signingKey?.kid || null,
+        algorithm: storedSettings?.signingAlg || app.config.signingKey?.alg || null,
+        createdAt: storedSettings?.createdAt || null,
+        updatedAt: storedSettings?.updatedAt || null,
+      },
+      sessionSecurity: {
+        accessTokenLifetimeMinutes: app.config.security.jwt.accessTtlMinutes,
+        refreshTokenLifetimeDays: app.config.security.jwt.refreshTtlDays,
+        failedLoginProtection: true,
+      },
+      apiSecretHeader: app.config.security.apiSecretHeader || "x-ua-api-secret",
     });
   });
 
@@ -54,7 +78,37 @@ export default async function adminRoutes(app: FastifyInstance) {
     }
     const key = await rotateBackendSigningKey();
     app.config.signingKey = key;
+    const prisma = getPrisma();
+    await prisma.auditLog.create({
+      data: {
+        actorUserId: String(user.sub),
+        action: "SIGNING_KEY_ROTATED",
+        details: { kid: key.kid, algorithm: key.alg },
+      },
+    });
     reply.send({ kid: key.kid });
+  });
+
+  app.get("/audit-logs", async (request, reply) => {
+    const user = requireUser(request);
+    if (user.role !== "admin") {
+      reply.code(403).send(errorResponse("FORBIDDEN", "Admin role required"));
+      return;
+    }
+    const prisma = getPrisma();
+    const logs = await prisma.auditLog.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 100,
+      include: {
+        actor: {
+          select: {
+            email: true,
+            displayName: true,
+          },
+        },
+      },
+    });
+    reply.send(logs);
   });
 
   app.get("/users", async (request, reply) => {

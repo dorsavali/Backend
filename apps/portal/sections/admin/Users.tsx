@@ -18,6 +18,7 @@ import {
   Users as UsersIcon,
   X,
 } from "lucide-react";
+import Footer from "../../components/Footer";
 import { backendUrl } from "../../lib/config";
 
 type UserRole = "admin" | "oem" | "app_dev";
@@ -568,7 +569,8 @@ export default function AdminUsers() {
         </footer>
       </section>
 
-      {/* Drawer ساخت کاربر یا تغییر رمز */}
+      <Footer />
+
       {drawerOpen && (
         <>
           <button
