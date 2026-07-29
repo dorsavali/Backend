@@ -482,7 +482,7 @@ export default function AdminOverview() {
           title="Users"
           value={data.users.length}
           description="Total users"
-          href="#users"
+          href="/admin/users"
           linkLabel="View all users"
           style={statStyles.users}
         />
@@ -643,7 +643,7 @@ export default function AdminOverview() {
             title="Users"
             badge={
               <a
-                href="#users"
+                href="/admin/users"
                 className="flex items-center gap-1 text-xs font-medium text-blue-700"
               >
                 View all users <ArrowRight size={14} />
@@ -722,8 +722,7 @@ export default function AdminOverview() {
               target="_blank"
               rel="noreferrer"
               className="font-semibold text-blue-700 transition hover:text-blue-900 hover:underline"
-            > 
-            
+            >
               Dorsa Vali
             </a>
           </span>
