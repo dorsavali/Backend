@@ -113,7 +113,6 @@ export default function AdminUsers() {
 
   const getAccessToken = () => localStorage.getItem("ua_access");
 
-  // لیست کاربران مستقیماً از backend خوانده می‌شود.
   const loadUsers = useCallback(async () => {
     const accessToken = getAccessToken();
     if (!accessToken) {

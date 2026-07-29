@@ -228,7 +228,6 @@ export default function AdminOverview() {
           );
           const nextData: OverviewData = { users, roots, authorities, backends };
 
-          // چون backend هنوز endpoint اعلان ندارد، تغییرات هر refresh با داده قبلی مقایسه می‌شوند.
           if (previousData.current) {
             const now = new Date().toISOString();
             const nextNotifications: AdminNotification[] = [];
@@ -490,7 +489,7 @@ export default function AdminOverview() {
           title="Root Anchors"
           value={activeRoots.length}
           description="Configured"
-          href="#security-status"
+          href="/admin/root-anchors"
           linkLabel="View root anchors"
           style={statStyles.roots}
         />

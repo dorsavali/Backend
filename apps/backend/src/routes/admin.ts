@@ -324,6 +324,14 @@ export default async function adminRoutes(app: FastifyInstance) {
     const prisma = getPrisma();
     const roots = await prisma.backendRootAnchor.findMany({
       orderBy: { createdAt: "desc" },
+      include: {
+        oemTrustAnchors: {
+          select: {
+            oemOrgId: true,
+            revokedAt: true,
+          },
+        },
+      },
     });
     const response = roots.map((root) => {
       let rsaSubject = "";
@@ -347,6 +355,11 @@ export default async function adminRoutes(app: FastifyInstance) {
         ecdsaSubject,
         createdAt: root.createdAt.toISOString(),
         revokedAt: root.revokedAt ? root.revokedAt.toISOString() : null,
+        linkedOemCount: new Set(
+          root.oemTrustAnchors
+            .filter((anchor) => !anchor.revokedAt)
+            .map((anchor) => anchor.oemOrgId),
+        ).size,
       };
     });
     reply.send(response);

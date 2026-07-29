@@ -1,5 +1,3 @@
-// components/ResponsiveMenu.tsx
-
 import { useEffect, useState, type ReactNode } from "react";
 import {
   LayoutDashboard,
