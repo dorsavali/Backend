@@ -123,8 +123,40 @@ export default function OemOrganization({
         window.location.href = "/login";
         return;
       }
-      if (!response.ok) throw new Error("Unable to load organization.");
-      const data: OrganizationResponse = await response.json();
+      let data: OrganizationResponse;
+      if (response.ok) {
+        data = await response.json();
+      } else {
+        const profileResponse = await fetch(`${backendUrl}/api/v1/oem/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!profileResponse.ok) throw new Error("Unable to connect to the backend.");
+        const profile = await profileResponse.json();
+        const currentUser = readCurrentUser(token);
+        data = {
+          organization: {
+            id: profile.id,
+            name: profile.name || "OEM Portal",
+            manufacturer: profile.manufacturer,
+            brand: profile.brand,
+            createdAt: profile.createdAt,
+          },
+          members: currentUser
+            ? [
+                {
+                  id: currentUser.id,
+                  email: currentUser.email,
+                  displayName: currentUser.name,
+                  organizationRole: "owner",
+                  status: "active",
+                  createdAt: profile.createdAt,
+                },
+              ]
+            : [],
+          pendingInvites: [],
+          activity: [],
+        };
+      }
       setOrganization(data.organization);
       setMembers(data.members || []);
       setInvites(data.pendingInvites || []);
@@ -1045,4 +1077,17 @@ function activityLabel(item: ActivityItem) {
     KEYBOX_GENERATED: "generated device keys",
   };
   return `${item.actorName} ${labels[item.action] || item.action.toLowerCase().replaceAll("_", " ")}`;
+}
+
+function readCurrentUser(token: string) {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return {
+      id: String(payload.sub || "current-user"),
+      email: String(payload.email || "oem@local"),
+      name: payload.displayName ? String(payload.displayName) : null,
+    };
+  } catch {
+    return null;
+  }
 }

@@ -116,8 +116,33 @@ export default function OemApiAccess({
         window.location.href = "/login";
         return;
       }
-      if (!accessResponse.ok) throw new Error("Unable to load API access data.");
-      const data: ApiAccessResponse = await accessResponse.json();
+      let data: ApiAccessResponse;
+      if (accessResponse.ok) {
+        data = await accessResponse.json();
+      } else if (profileResponse.ok) {
+        const profile = await profileResponse.clone().json();
+        data = {
+          credential: profile.apiTokenPrefix
+            ? {
+                id: profile.id,
+                name: "OEM API Credential",
+                clientId: `oem_${String(profile.id).slice(-8)}`,
+                prefix: profile.apiTokenPrefix,
+                environment: "production",
+                description: "",
+                scopes: ["devices:read"],
+                expiration: "never",
+                createdAt: profile.createdAt,
+                lastUsed: null,
+                status: "active",
+              }
+            : null,
+          metrics: emptyMetrics,
+          usage: [],
+        };
+      } else {
+        throw new Error("Unable to connect to the backend.");
+      }
       setCredential(data.credential);
       setMetrics(data.metrics || emptyMetrics);
       setUsage(data.usage || []);

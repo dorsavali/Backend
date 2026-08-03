@@ -46,18 +46,23 @@ export default function OemMenu({
   }, [mobileMenuOpen]);
 
   const sidebar = (
-    <div className="flex h-full flex-col bg-[#071226] text-white">
-      <div className="flex h-20 items-center gap-3 border-b border-white/10 px-5">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 bg-white/10">
-          <ShieldCheck size={24} />
-        </div>
-        <div>
-          <p className="font-semibold">Unified Attestation</p>
-          <p className="text-xs text-slate-400">OEM Portal</p>
+    <div className="flex h-full flex-col bg-[#071226] text-slate-200">
+      <div className="flex h-16 items-center border-b border-white/10 px-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-950">
+            <ShieldCheck size={21} strokeWidth={2.5} />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-white">Unified Attestation</p>
+            <p className="text-xs text-slate-400">OEM Portal</p>
+          </div>
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto p-3" aria-label="OEM navigation">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-5" aria-label="OEM navigation">
+        <p className="mb-3 px-3 text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+          Management
+        </p>
         {items.map((item) => {
           const Icon = item.icon;
           const active = item.id === activeItem;
@@ -66,35 +71,38 @@ export default function OemMenu({
               key={item.id}
               href={item.href}
               onClick={() => setMobileMenuOpen(false)}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
+              className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6f88b5] ${
                 active
-                  ? "bg-[#1c3155] text-white shadow-sm"
+                  ? "bg-[#1b2d4d] text-white shadow-lg shadow-black/20"
                   : "text-slate-300 hover:bg-[#101f36] hover:text-white"
               }`}
             >
-              <Icon size={20} className={active ? "text-blue-300" : "text-slate-400"} />
+              <Icon
+                size={20}
+                className={active ? "text-white" : "text-slate-400 group-hover:text-white"}
+              />
               {item.label}
             </a>
           );
         })}
       </nav>
 
-      <div className="border-t border-white/10 p-4">
-        <div className="flex items-center gap-3 rounded-xl bg-white/5 p-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-blue-200">
-            <Building2 size={19} />
+      <div className="border-t border-white/10 p-3">
+        <div className="mb-2 flex items-center gap-3 rounded-xl px-3 py-2">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-700 text-sm font-semibold text-white">
+            {organizationName.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{organizationName}</p>
-            <p className="text-xs text-slate-400">OEM Administrator</p>
+            <p className="truncate text-sm font-medium text-white">{organizationName}</p>
+            <p className="truncate text-xs text-slate-400">OEM Administrator</p>
           </div>
         </div>
         <button
           type="button"
           onClick={onLogout}
-          className="mt-2 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-300 transition hover:bg-[#101f36] hover:text-white"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-400 transition hover:bg-red-500/10 hover:text-red-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
         >
-          <LogOut size={18} />
+          <LogOut size={19} />
           Sign out
         </button>
       </div>
@@ -106,12 +114,12 @@ export default function OemMenu({
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 lg:block">{sidebar}</aside>
 
       <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur lg:hidden">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#071226] text-white">
             <ShieldCheck size={20} />
           </div>
           <div>
-            <p className="text-sm font-semibold text-[#071226]">Unified Attestation</p>
+            <p className="text-sm font-semibold text-slate-900">Unified Attestation</p>
             <p className="text-xs text-slate-500">OEM Portal</p>
           </div>
         </div>
@@ -119,7 +127,7 @@ export default function OemMenu({
           type="button"
           onClick={() => setMobileMenuOpen(true)}
           aria-label="Open navigation menu"
-          className="rounded-xl border border-slate-200 p-2.5 text-slate-700 hover:bg-slate-100"
+          className="rounded-xl border border-slate-200 p-2.5 text-slate-700 transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#48658f]"
         >
           <Menu size={22} />
         </button>
@@ -134,7 +142,7 @@ export default function OemMenu({
         }`}
       />
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[min(88vw,320px)] transition-transform duration-300 lg:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-[min(88vw,320px)] transition-transform duration-300 ease-out lg:hidden ${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -142,7 +150,7 @@ export default function OemMenu({
           type="button"
           onClick={() => setMobileMenuOpen(false)}
           aria-label="Close navigation menu"
-          className="absolute right-3 top-3 z-10 rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white"
+          className="absolute right-3 top-3 z-10 rounded-lg p-2 text-slate-400 transition hover:bg-white/10 hover:text-white"
         >
           <X size={21} />
         </button>
