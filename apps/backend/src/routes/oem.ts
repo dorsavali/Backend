@@ -1358,6 +1358,57 @@ export default async function oemRoutes(app: FastifyInstance) {
     reply.send(result);
   });
 
+  app.get("/reports", async (request, reply) => {
+    const user = requireUser(request);
+    if (!requireOemRole(user.role as string, reply)) {
+      return;
+    }
+    const org = await requireOemOrg(user.sub as string);
+    const prisma = getPrisma();
+    const { days } = request.query as { days?: string };
+    const parsedDays = Number(days || 30);
+    const familyIds = (
+      await prisma.deviceFamily.findMany({
+        where: { oemOrgId: org.id },
+        select: { id: true },
+      })
+    ).map((family) => family.id);
+    const reports = await prisma.deviceReport.findMany({
+      where: {
+        deviceFamilyId: { in: familyIds },
+        lastSeen:
+          Number.isFinite(parsedDays) && parsedDays > 0
+            ? { gte: new Date(Date.now() - parsedDays * 24 * 60 * 60 * 1000) }
+            : undefined,
+      },
+      include: {
+        deviceFamily: {
+          select: { id: true, codename: true, name: true, model: true },
+        },
+        buildPolicy: {
+          select: { id: true, buildFingerprint: true, enabled: true },
+        },
+      },
+      orderBy: { lastSeen: "desc" },
+    });
+    reply.send(
+      reports.map((report) => ({
+        id: report.id,
+        scopedDeviceId: report.scopedDeviceId,
+        issuerBackendId: report.issuerBackendId,
+        deviceFamilyId: report.deviceFamilyId,
+        deviceFamilyName: report.deviceFamily?.codename || report.deviceFamily?.name || "Unknown",
+        model: report.deviceFamily?.model,
+        buildPolicyId: report.buildPolicyId,
+        buildFingerprint: report.buildFingerprint,
+        matchedBuildFingerprint: report.buildPolicy?.buildFingerprint,
+        lastVerdict: report.lastVerdict,
+        lastState: report.lastState,
+        lastSeen: report.lastSeen,
+      })),
+    );
+  });
+
   app.get("/reports/failing-devices", async (request, reply) => {
     const user = requireUser(request);
     if (!requireOemRole(user.role as string, reply)) {

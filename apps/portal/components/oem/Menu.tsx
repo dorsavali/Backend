@@ -23,9 +23,9 @@ type OemMenuProps = {
 const items = [
   { id: "overview", label: "Overview", href: "/oem", icon: LayoutDashboard },
   { id: "devices", label: "Devices", href: "/oem/devices", icon: Smartphone },
-  { id: "builds", label: "Build Policies", href: "/oem#build-policies", icon: Boxes },
-  { id: "anchors", label: "Trust Anchors", href: "/oem#trust-anchors", icon: KeyRound },
-  { id: "reports", label: "Reports", href: "/oem#reports", icon: BarChart3 },
+  { id: "builds", label: "Build Policies", href: "/oem/build-policies", icon: Boxes },
+  { id: "anchors", label: "Trust Anchors", href: "/oem/trust-anchors", icon: KeyRound },
+  { id: "reports", label: "Reports", href: "/oem/reports", icon: BarChart3 },
   { id: "api", label: "API Access", href: "/oem#api-access", icon: Code2 },
   { id: "organization", label: "Organization", href: "/oem#organization", icon: Building2 },
 ];
