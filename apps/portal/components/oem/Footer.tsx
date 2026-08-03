@@ -11,7 +11,7 @@ export default function OemFooter() {
             rel="noreferrer"
             className="font-semibold text-blue-700 transition hover:text-blue-900 hover:underline"
           >
-            Dorsa Vali
+            Dorsa Valli
           </a>
         </span>
       </div>
