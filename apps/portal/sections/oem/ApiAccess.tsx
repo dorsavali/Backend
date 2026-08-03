@@ -244,7 +244,7 @@ export default function OemApiAccess({
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <a
-            href={`${backendUrl}/docs`}
+            href="https://github.com/unifiedAttestation/Website/wiki"
             target="_blank"
             rel="noreferrer"
             className="flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-700 hover:bg-slate-50"

@@ -276,7 +276,7 @@ export default function AppdevDashboard({
             />
           </label>
           <a
-            href={`${backendUrl}/docs`}
+            href="https://github.com/unifiedAttestation/Website/wiki"
             target="_blank"
             rel="noreferrer"
             className="flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-700 hover:bg-slate-50"
@@ -453,7 +453,7 @@ export default function AppdevDashboard({
               <EmptyState
                 text="No device reports yet. Reports appear after a device attests with a registered application."
                 button="View Integration Guide"
-                href={`${backendUrl}/docs`}
+                href="https://github.com/unifiedAttestation/Website/wiki"
               />
             )}
           </div>
@@ -948,7 +948,7 @@ function GettingStarted({
       <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-3 text-xs">
         <span className="text-slate-500">{complete} of 4 complete</span>
         <a
-          href={`${backendUrl}/docs`}
+          href="https://github.com/unifiedAttestation/Website/wiki"
           target="_blank"
           rel="noreferrer"
           className="rounded-lg border border-blue-600 px-3 py-2 text-blue-700"
