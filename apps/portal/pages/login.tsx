@@ -40,7 +40,7 @@ export default function LoginPage() {
         await router.push("/oem");
         return;
       }
-      await router.push("/dashboard");
+      await router.push("/appdev");
     } catch {
       setError("Unable to connect. Please try again.");
     } finally {
