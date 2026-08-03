@@ -135,8 +135,120 @@ export default function OemOverview({
         window.location.href = "/login";
         return;
       }
-      if (!response.ok) throw new Error("Unable to load OEM overview.");
-      const payload: OverviewData = await response.json();
+      let payload: OverviewData;
+      if (response.ok) {
+        payload = await response.json();
+      } else {
+        const headers = { Authorization: `Bearer ${token}` };
+        const [
+          familiesResponse,
+          anchorsResponse,
+          reportsResponse,
+          federationResponse,
+          profileResponse,
+        ] = await Promise.all([
+          fetch(`${backendUrl}/api/v1/oem/device-families`, { headers }),
+          fetch(`${backendUrl}/api/v1/oem/anchors`, { headers }),
+          fetch(`${backendUrl}/api/v1/oem/reports/failing-devices`, { headers }),
+          fetch(`${backendUrl}/api/v1/federation/backends`),
+          fetch(`${backendUrl}/api/v1/oem/profile`, { headers }),
+        ]);
+        if (!familiesResponse.ok) {
+          throw new Error("Unable to load OEM overview.");
+        }
+        const families: Array<{
+          id: string;
+          name: string;
+          codename?: string | null;
+          model?: string | null;
+          enabled: boolean;
+          activeBuilds?: number;
+        }> = await familiesResponse.json();
+        const [anchors, reports, federation, profile] = await Promise.all([
+          anchorsResponse.ok ? anchorsResponse.json() : Promise.resolve([]),
+          reportsResponse.ok ? reportsResponse.json() : Promise.resolve([]),
+          federationResponse.ok ? federationResponse.json() : Promise.resolve([]),
+          profileResponse.ok ? profileResponse.json() : Promise.resolve({ name: "OEM Portal" }),
+        ]);
+        const buildResponses = await Promise.all(
+          families.map((family) =>
+            fetch(`${backendUrl}/api/v1/oem/device-families/${family.id}/builds`, { headers }),
+          ),
+        );
+        const buildsByFamily = await Promise.all(
+          buildResponses.map(async (buildResponse) =>
+            buildResponse.ok ? await buildResponse.json() : [],
+          ),
+        );
+        const activeBuildCounts = buildsByFamily.map(
+          (builds: Array<{ enabled?: boolean }>) =>
+            builds.filter((build) => build.enabled !== false).length,
+        );
+        const failingReports = reports as Array<{
+          id: string;
+          scopedDeviceId: string;
+          deviceFamilyId?: string | null;
+          buildFingerprint?: string | null;
+          lastVerdict?: { reasonCodes?: string[] };
+          lastSeen: string;
+        }>;
+        const anchorItems = anchors as Array<{
+          deviceFamilyId?: string;
+          revokedAt?: string | null;
+        }>;
+        payload = {
+          organization: { id: profile.id || "", name: profile.name || "OEM Portal" },
+          stats: {
+            deviceFamilies: families.length,
+            activeBuilds: activeBuildCounts.reduce((total, count) => total + count, 0),
+            trustAnchors: anchorItems.filter((anchor) => !anchor.revokedAt).length,
+            totalDevices: failingReports.length,
+            trustedDevices: 0,
+            failingDevices: failingReports.length,
+            unknownDevices: 0,
+          },
+          families: families.map((family, index) => ({
+            id: family.id,
+            name: family.codename || family.name,
+            model: family.model,
+            enabled: family.enabled,
+            activeBuilds: activeBuildCounts[index] || Number(family.activeBuilds || 0),
+            status: failingReports.some((report) => report.deviceFamilyId === family.id)
+              ? "warning"
+              : family.enabled
+                ? "healthy"
+                : "disabled",
+          })),
+          recentReports: failingReports.slice(0, 5).map((report) => ({
+            id: report.id,
+            scopedDeviceId: report.scopedDeviceId,
+            deviceFamilyId: report.deviceFamilyId,
+            deviceFamilyName:
+              families.find((family) => family.id === report.deviceFamilyId)?.codename ||
+              families.find((family) => family.id === report.deviceFamilyId)?.name ||
+              "Unknown",
+            buildFingerprint: report.buildFingerprint,
+            reasonCodes: report.lastVerdict?.reasonCodes || [],
+            lastSeen: report.lastSeen,
+          })),
+          federationBackends: federation,
+        };
+      }
+      payload.stats = {
+        deviceFamilies: Number(payload.stats?.deviceFamilies || 0),
+        activeBuilds: Number(payload.stats?.activeBuilds || 0),
+        trustAnchors: Number(payload.stats?.trustAnchors || 0),
+        totalDevices: Number(payload.stats?.totalDevices || 0),
+        trustedDevices: Number(payload.stats?.trustedDevices || 0),
+        failingDevices: Number(payload.stats?.failingDevices || 0),
+        unknownDevices: Number(payload.stats?.unknownDevices || 0),
+      };
+      payload.families = (payload.families || []).map((family) => ({
+        ...family,
+        activeBuilds: Number(family.activeBuilds || 0),
+      }));
+      payload.recentReports = payload.recentReports || [];
+      payload.federationBackends = payload.federationBackends || [];
       setData(payload);
       onOrganizationLoaded?.(payload.organization.name);
       setError(null);
@@ -428,7 +540,7 @@ export default function OemOverview({
                 {visibleFamilies.slice(0, 6).map((family) => (
                   <a
                     key={family.id}
-                    href={`/oem?deviceFamilyId=${family.id}`}
+                    href={`/oem/devices?deviceFamilyId=${family.id}`}
                     className="flex items-center gap-3 px-4 py-3 transition hover:bg-slate-50"
                   >
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-700">

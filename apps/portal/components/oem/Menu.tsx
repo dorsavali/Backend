@@ -22,7 +22,7 @@ type OemMenuProps = {
 
 const items = [
   { id: "overview", label: "Overview", href: "/oem", icon: LayoutDashboard },
-  { id: "devices", label: "Devices", href: "/oem#device-families", icon: Smartphone },
+  { id: "devices", label: "Devices", href: "/oem/devices", icon: Smartphone },
   { id: "builds", label: "Build Policies", href: "/oem#build-policies", icon: Boxes },
   { id: "anchors", label: "Trust Anchors", href: "/oem#trust-anchors", icon: KeyRound },
   { id: "reports", label: "Reports", href: "/oem#reports", icon: BarChart3 },

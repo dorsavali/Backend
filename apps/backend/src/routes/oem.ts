@@ -770,6 +770,12 @@ export default async function oemRoutes(app: FastifyInstance) {
     const prisma = getPrisma();
     const families = await prisma.deviceFamily.findMany({
       where: { oemOrgId: org.id },
+      include: {
+        buildPolicies: { select: { enabled: true } },
+        deviceEntries: { select: { revokedAt: true } },
+        _count: { select: { reports: true } },
+      },
+      orderBy: { createdAt: "desc" },
     });
     const response = families.map((family) => ({
       id: family.id,
@@ -780,6 +786,9 @@ export default async function oemRoutes(app: FastifyInstance) {
       brand: family.brand,
       enabled: family.enabled,
       createdAt: family.createdAt,
+      activeBuilds: family.buildPolicies.filter((build) => build.enabled).length,
+      activeTrustAnchors: family.deviceEntries.filter((anchor) => !anchor.revokedAt).length,
+      reports: family._count.reports,
     }));
     reply.send(response);
   });
@@ -794,9 +803,21 @@ export default async function oemRoutes(app: FastifyInstance) {
     const body = request.body as {
       codename?: string;
       model?: string;
+      enabled?: boolean;
     };
     if (!body.codename) {
       reply.code(400).send(errorResponse("INVALID_REQUEST", "Missing device codename"));
+      return;
+    }
+    if (!/^[a-z0-9-]+$/.test(body.codename)) {
+      reply
+        .code(400)
+        .send(
+          errorResponse(
+            "INVALID_REQUEST",
+            "Codename must use lowercase letters, numbers, and hyphens",
+          ),
+        );
       return;
     }
     if (!org.manufacturer || !org.brand) {
@@ -810,6 +831,7 @@ export default async function oemRoutes(app: FastifyInstance) {
         name: body.codename,
         codename: body.codename,
         model: body.model,
+        enabled: body.enabled ?? true,
         oemOrgId: org.id,
       },
     });
