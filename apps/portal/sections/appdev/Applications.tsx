@@ -355,105 +355,111 @@ export default function AppdevApplications({
         <StatCard label="Device Reports" value={allReportCount} icon={<BarChart3 />} tone="slate" />
       </section>
 
-      <section className="grid min-w-0 gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
-        <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <header className="border-b border-slate-200 p-4">
-            <h2 className="text-lg font-semibold text-[#071226]">Registered Apps</h2>
-            <p className="text-xs text-slate-500">Applications linked to this developer account.</p>
-            <div className="mt-4 grid grid-cols-[1fr_130px] gap-2">
-              <label className="relative">
-                <Search
-                  size={16}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                />
-                <input
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Search applications..."
-                  className="h-10 w-full rounded-lg border border-slate-200 pl-9 pr-3 text-sm outline-none focus:border-blue-600"
-                />
-              </label>
-              <select
-                value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
-                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm"
-              >
-                <option value="all">All status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </div>
-          </header>
-          <div className="space-y-2 p-3">
-            {visibleApps.map((application) => (
-              <AppListItem
-                key={application.id}
-                application={application}
-                active={application.id === selectedId}
-                onSelect={() => chooseApp(application)}
-                menuOpen={menuId === application.id}
-                onMenu={(event) => {
-                  event.stopPropagation();
-                  const rect = event.currentTarget.getBoundingClientRect();
-                  setMenuPosition({ top: rect.bottom + 6, left: Math.max(12, rect.right - 180) });
-                  setMenuId(menuId === application.id ? null : application.id);
-                }}
-                menuPosition={menuPosition}
-                closeMenu={() => setMenuId(null)}
-                onRotate={() => {
-                  setMenuId(null);
-                  rotateSecret(application);
-                }}
-                onDelete={() => {
-                  setMenuId(null);
-                  deleteApp(application);
-                }}
-              />
-            ))}
-            {loading && (
-              <div className="flex items-center justify-center gap-2 py-12 text-sm text-slate-500">
-                <Loader2 size={18} className="animate-spin" />
-                Loading...
+      <section className="grid min-w-0 items-stretch gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
+        <div className="flex min-w-0 flex-col gap-4">
+          <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <header className="border-b border-slate-200 p-4">
+              <h2 className="text-lg font-semibold text-[#071226]">Registered Apps</h2>
+              <p className="text-xs text-slate-500">
+                Applications linked to this developer account.
+              </p>
+              <div className="mt-4 grid grid-cols-[1fr_130px] gap-2">
+                <label className="relative">
+                  <Search
+                    size={16}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  />
+                  <input
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder="Search applications..."
+                    className="h-10 w-full rounded-lg border border-slate-200 pl-9 pr-3 text-sm outline-none focus:border-blue-600"
+                  />
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(event) => setStatusFilter(event.target.value)}
+                  className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm"
+                >
+                  <option value="all">All status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
               </div>
-            )}
-            {!loading && visibleApps.length === 0 && (
-              <p className="py-12 text-center text-sm text-slate-500">No applications found.</p>
-            )}
-          </div>
-          <footer className="flex items-center justify-between border-t border-slate-200 px-4 py-3 text-xs text-slate-500">
-            <span>
-              {filteredApps.length} application{filteredApps.length === 1 ? "" : "s"}
-            </span>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                disabled={page === 1}
-                onClick={() => setPage((value) => value - 1)}
-                className="rounded-lg border border-slate-200 p-2 disabled:opacity-40"
-              >
-                <ArrowLeft size={14} />
-              </button>
-              <span className="flex min-w-8 items-center justify-center rounded-lg border border-blue-600 text-blue-700">
-                {page}
-              </span>
-              <button
-                type="button"
-                disabled={page === totalPages}
-                onClick={() => setPage((value) => value + 1)}
-                className="rounded-lg border border-slate-200 p-2 disabled:opacity-40"
-              >
-                <ArrowRight size={14} />
-              </button>
+            </header>
+            <div className="space-y-2 p-3">
+              {visibleApps.map((application) => (
+                <AppListItem
+                  key={application.id}
+                  application={application}
+                  active={application.id === selectedId}
+                  onSelect={() => chooseApp(application)}
+                  menuOpen={menuId === application.id}
+                  onMenu={(event) => {
+                    event.stopPropagation();
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    setMenuPosition({ top: rect.bottom + 6, left: Math.max(12, rect.right - 180) });
+                    setMenuId(menuId === application.id ? null : application.id);
+                  }}
+                  menuPosition={menuPosition}
+                  closeMenu={() => setMenuId(null)}
+                  onRotate={() => {
+                    setMenuId(null);
+                    rotateSecret(application);
+                  }}
+                  onDelete={() => {
+                    setMenuId(null);
+                    deleteApp(application);
+                  }}
+                />
+              ))}
+              {loading && (
+                <div className="flex items-center justify-center gap-2 py-12 text-sm text-slate-500">
+                  <Loader2 size={18} className="animate-spin" />
+                  Loading...
+                </div>
+              )}
+              {!loading && visibleApps.length === 0 && (
+                <p className="py-12 text-center text-sm text-slate-500">No applications found.</p>
+              )}
             </div>
-          </footer>
-        </article>
+            <footer className="flex items-center justify-between border-t border-slate-200 px-4 py-3 text-xs text-slate-500">
+              <span>
+                {filteredApps.length} application{filteredApps.length === 1 ? "" : "s"}
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={page === 1}
+                  onClick={() => setPage((value) => value - 1)}
+                  className="rounded-lg border border-slate-200 p-2 disabled:opacity-40"
+                >
+                  <ArrowLeft size={14} />
+                </button>
+                <span className="flex min-w-8 items-center justify-center rounded-lg border border-blue-600 text-blue-700">
+                  {page}
+                </span>
+                <button
+                  type="button"
+                  disabled={page === totalPages}
+                  onClick={() => setPage((value) => value + 1)}
+                  className="rounded-lg border border-slate-200 p-2 disabled:opacity-40"
+                >
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            </footer>
+          </article>
 
-        <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <ServerSecret onRotate={() => rotateSecret()} saving={saving} compact />
+        </div>
+
+        <article className="h-full min-w-0 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           {selectedApp ? (
             <>
               <h2 className="text-xl font-semibold text-[#071226]">{selectedApp.name}</h2>
               <nav className="mt-3 flex gap-1 overflow-x-auto border-b border-slate-200">
-                {["Overview", "Configuration", "Server Secret", "Device Reports"].map((tab) => (
+                {["Overview", "Configuration", "Device Reports"].map((tab) => (
                   <button
                     key={tab}
                     type="button"
@@ -486,9 +492,6 @@ export default function AppdevApplications({
                     onDelete={deleteApp}
                   />
                 )}
-                {activeTab === "Server Secret" && (
-                  <ServerSecret onRotate={rotateSecret} saving={saving} />
-                )}
                 {activeTab === "Device Reports" && <ReportsTable reports={reports} />}
               </div>
             </>
@@ -502,24 +505,6 @@ export default function AppdevApplications({
             </div>
           )}
         </article>
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-[0.8fr_1fr_0.8fr_1.45fr]">
-        <ServerSecret onRotate={() => rotateSecret()} saving={saving} compact />
-        <ProfileSecurity
-          profile={profile}
-          displayName={displayName}
-          setDisplayName={setDisplayName}
-          currentPassword={currentPassword}
-          setCurrentPassword={setCurrentPassword}
-          newPassword={newPassword}
-          setNewPassword={setNewPassword}
-          saving={saving}
-          onSave={saveProfile}
-          onPassword={changePassword}
-        />
-        <FederationPanel backends={backends} />
-        <ReportsTable reports={reports} card />
       </section>
 
       <AppdevFooter />
