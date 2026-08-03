@@ -341,7 +341,7 @@ export default function AppdevDashboard({
                 Applications registered to this developer account.
               </p>
             </div>
-            <a href="#applications" className="text-xs font-medium text-blue-700">
+            <a href="/appdev/applications" className="text-xs font-medium text-blue-700">
               View all applications
             </a>
           </div>

@@ -11,8 +11,22 @@ export default function Footer({ pushToBottom = true }: FooterProps) {
         pushToBottom ? "mt-auto" : "",
       ].join(" ")}
     >
-      <div className="flex flex-wrap items-center gap-x-2">
-        <span>© {new Date().getFullYear()} Unified Attestation. All rights reserved.</span>
+      <div className="space-y-1">
+        <p>© {new Date().getFullYear()} Unified Attestation. All rights reserved.</p>
+        <p>
+          An initiative by{" "}
+          <a
+            href="https://volla.online/"
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-slate-700 transition hover:text-blue-800 hover:underline"
+          >
+            Volla Systeme GmbH
+          </a>{" "}
+          <span aria-hidden="true">·</span> Built in Germany
+        </p>
+      </div>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 md:justify-end">
         <span>
           Designed and developed by{" "}
           <a
@@ -24,13 +38,10 @@ export default function Footer({ pushToBottom = true }: FooterProps) {
             Dorsa Valli
           </a>
         </span>
-      </div>
-      <nav className="flex items-center gap-6" aria-label="Legal links">
         <a href="https://uattest.net/" className="transition hover:text-slate-900">
           More Info
         </a>
-       
-      </nav>
+      </div>
     </footer>
   );
 }

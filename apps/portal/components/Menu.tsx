@@ -117,7 +117,7 @@ export default function ResponsiveMenu({
         {logo ?? (
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-950">
-              <ShieldCheck size={21} strokeWidth={2.5} />
+              <img src="/unified-attestation-logo.svg" alt="" className="h-7 w-7" />
             </div>
 
             <div>
@@ -202,7 +202,11 @@ export default function ResponsiveMenu({
       <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur lg:hidden">
         <div className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#071226] text-white">
-            <ShieldCheck size={20} />
+            <img
+              src="/unified-attestation-logo.svg"
+              alt=""
+              className="h-6 w-6 brightness-0 invert"
+            />
           </div>
 
           <div>
